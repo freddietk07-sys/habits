@@ -139,16 +139,16 @@ input,select,textarea{font-family:var(--font);font-size:16px}
 .kick{font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:650;color:var(--n500)}
 
 /* ── glass surfaces ── */
-.card,.tint,.row,.glass{position:relative;border-radius:var(--rl);
-  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
-.card,.glass{background:var(--glass);
+.card,.tint,.row,.glass{position:relative;border-radius:var(--rl)}
+.card,.glass{background:linear-gradient(158deg,rgba(255,255,255,.085),rgba(255,255,255,.045) 46%,rgba(255,255,255,.03));
   box-shadow:var(--sheen),inset 0 0 0 1px var(--edge),var(--lift)}
 .tint{background:linear-gradient(150deg,rgba(150,132,255,.28),rgba(90,80,190,.10) 62%,rgba(255,255,255,.04));
   box-shadow:var(--sheen),inset 0 0 0 1px rgba(178,164,255,.26),var(--lift)}
 .card::after,.tint::after,.glass::after{content:'';position:absolute;inset:0;border-radius:inherit;
   pointer-events:none;background:linear-gradient(158deg,rgba(255,255,255,.13),rgba(255,255,255,.02) 34%,transparent 62%)}
 .row{display:flex;align-items:center;gap:12px;padding:13px 14px;
-  background:var(--surface);box-shadow:var(--sheen),inset 0 0 0 1px var(--edge)}
+  background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.04));
+  box-shadow:var(--sheen),inset 0 0 0 1px var(--edge)}
 .row.done{background:rgba(255,255,255,.028);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 .row.hold{background:rgba(255,178,107,.06);box-shadow:inset 0 0 0 1px rgba(255,178,107,.20)}
 
@@ -196,17 +196,20 @@ input,select,textarea{font-family:var(--font);font-size:16px}
 .tab i,.tab span{position:relative}
 .tab i{font-size:21px}
 
-.sheet{position:fixed;inset:0;background:rgba(6,7,14,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+.sheet{position:fixed;inset:0;background:rgba(6,7,14,.5);
+  -webkit-backdrop-filter:saturate(160%) blur(20px);backdrop-filter:saturate(160%) blur(20px);
   z-index:20;display:flex;align-items:flex-end}
 .sheet>div{width:100%;max-width:430px;margin:0 auto;max-height:93%;overflow-y:auto;
-  background:rgba(26,27,45,.78);-webkit-backdrop-filter:saturate(180%) blur(30px);backdrop-filter:saturate(180%) blur(30px);
+  -webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg,rgba(38,39,64,.97),rgba(24,25,42,.97));
   border-radius:var(--rxl) var(--rxl) 0 0;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.08),0 -20px 60px rgba(0,0,0,.6);
-  padding-bottom:calc(20px + env(safe-area-inset-bottom));animation:up .34s cubic-bezier(.22,1,.36,1)}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.08),0 -20px 60px rgba(0,0,0,.6)}
+.sheet>div.in{animation:up .34s cubic-bezier(.22,1,.36,1)}
 .full{position:fixed;inset:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:25;
-  background:rgba(18,19,33,.82);-webkit-backdrop-filter:saturate(180%) blur(30px);backdrop-filter:saturate(180%) blur(30px);
+  background:linear-gradient(180deg,rgba(32,32,56,.985),rgba(16,17,29,.985));
   display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);
-  padding-bottom:calc(24px + env(safe-area-inset-bottom));animation:up .3s cubic-bezier(.22,1,.36,1)}
+  padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.full.in{animation:up .3s cubic-bezier(.22,1,.36,1)}
 .toast{position:fixed;left:20px;right:20px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:30;
   padding:14px 15px;border-radius:var(--rl);background:rgba(48,44,84,.8);
   -webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px);
@@ -222,7 +225,7 @@ input,select,textarea{font-family:var(--font);font-size:16px}
 .tinp:focus{outline:0;box-shadow:inset 0 0 0 1.5px var(--accent)}
 .tinp::-webkit-date-and-time-value{text-align:center}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);border-radius:var(--rl);overflow:hidden;
-  background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  background:linear-gradient(158deg,rgba(255,255,255,.085),rgba(255,255,255,.035));
   box-shadow:var(--sheen),inset 0 0 0 1px var(--edge),var(--lift)}
 .grid4>div{padding:14px 4px;text-align:center;box-shadow:inset -1px 0 0 var(--line)}
 .grid4>div:last-child{box-shadow:none}
@@ -1356,7 +1359,7 @@ function planWid(){var m=new Date();m.setDate(m.getDate()-midx(m)+S.planWeek*7);
 function planDays(){var w=planWid(),d=S.weeks[w]||DEFAULT_WEEK,o={};for(var k in d)o[k]=d[k];return o}
 function setDay(i,v){var w=planWid(),d=planDays();d[i]=v;S.weeks[w]=d;clearPlans()}
 
-var scrollPos={};
+var scrollPos={},lastOverKey='';
 function render(){
   var C=compute();
   var sc=document.getElementById('scroll');
@@ -1364,17 +1367,33 @@ function render(){
   var caret=null;
   if(focusId&&document.activeElement.selectionStart!==undefined)caret=document.activeElement.selectionStart;
   var locked=!!(S.sheet||S.routine||S.plan);
+  var overKey=S.routine?'routine':S.plan?'plan':S.sheet?'sheet':'';
+  var sameOverlay=(overKey===lastOverKey);
   sc.style.overflowY=locked?'hidden':'auto';
   if(!locked)scrollPos[S.tab]=sc.scrollTop;
-  var v=S.tab==='today'?viewToday(C):S.tab==='stats'?viewStats(C):S.tab==='cal'?viewCal(C):
-        S.tab==='habits'?viewHabits(C):viewYou(C);
-  document.getElementById('app').innerHTML=v;
-  document.getElementById('tabs').innerHTML=[['today','Today','sun-horizon'],['stats','Progress','chart-line-up'],
-    ['cal','Calendar','calendar-dots'],['habits','Habits','squares-four'],['you','You','user-circle']].map(function(t){
-    var on=S.tab===t[0];
-    return '<button class="tab'+(on?' on':'')+'" data-act="tab:'+t[0]+'"><i class="'+(on?'ph-fill':'ph')+' ph-'+t[2]+'"></i>'+t[1]+'</button>';
-  }).join('');
-  document.getElementById('over').innerHTML=overlays(C);
+
+  /* the page behind a locked overlay can't be seen \u2014 don't rebuild it every tick */
+  if(!locked||!sameOverlay){
+    var v=S.tab==='today'?viewToday(C):S.tab==='stats'?viewStats(C):S.tab==='cal'?viewCal(C):
+          S.tab==='habits'?viewHabits(C):viewYou(C);
+    document.getElementById('app').innerHTML=v;
+    document.getElementById('tabs').innerHTML=[['today','Today','sun-horizon'],['stats','Progress','chart-line-up'],
+      ['cal','Calendar','calendar-dots'],['habits','Habits','squares-four'],['you','You','user-circle']].map(function(t){
+      var on=S.tab===t[0];
+      return '<button class="tab'+(on?' on':'')+'" data-act="tab:'+t[0]+'"><i class="'+(on?'ph-fill':'ph')+' ph-'+t[2]+'"></i>'+t[1]+'</button>';
+    }).join('');
+  }
+
+  var ov=document.getElementById('over');
+  var pane=ov.querySelector('.sheet>div,.full');
+  var keepScroll=(sameOverlay&&pane)?pane.scrollTop:0;
+  ov.innerHTML=overlays(C);
+  var pane2=ov.querySelector('.sheet>div,.full');
+  if(pane2){
+    if(sameOverlay){if(keepScroll)pane2.scrollTop=keepScroll}
+    else pane2.className+=' in';
+  }
+  lastOverKey=overKey;
   if(focusId){var f=document.getElementById(focusId);
     if(f){f.focus();if(caret!==null&&f.setSelectionRange)try{f.setSelectionRange(caret,caret)}catch(e){}}}
 }
